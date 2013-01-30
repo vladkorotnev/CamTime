@@ -1,4 +1,4 @@
-#import "/Users/tigra/Desktop/Coding/iphone-private-frameworks/PhotoLibrary/PLCameraButton.h"
+#import <PhotoLibrary/PLCameraButton.h>
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "AudioMaster.h"
