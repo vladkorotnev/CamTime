@@ -15,11 +15,12 @@ static BOOL areWeOn;
 static BOOL areWeProgressing; 
 static BOOL isSpringBoard=NO; 
 static BOOL isCamera=NO; 
+static BOOL isOSSix=NO;
 static UIToolbar * ourCountBar; 
 static UILabel * ourCountLabel; 
 static UIToolbar * bottomCamBar; 
 #define PREF_FILE @"/var/mobile/Library/Preferences/com.vladkorotnev.camtime.plist" 
-#define ABT_TITLE @"CamTime 4" 
+#define ABT_TITLE @"CamTime 5" 
 
 
 static void updateCountdownView() { 
@@ -84,7 +85,7 @@ static void nagScreen() {
 		
 		ourCountBar.frame = CGRectMake(0,0,bottomCamBar.frame.size.width,bottomCamBar.frame.size.height);
 	
-	[ourCountBar setBackgroundImage: [UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBarSilver.png"] forToolbarPosition: UIToolbarPositionAny barMetrics: UIBarMetricsDefault];
+	[ourCountBar setBackgroundImage: (isOSSix ? [UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBarBlack.png"] : [UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBarSilver.png"]) forToolbarPosition: UIToolbarPositionAny barMetrics: UIBarMetricsDefault];
 	ourCountBar.opaque = true; 
 	NSMutableArray *items = [[NSMutableArray alloc] init]; 
 	
@@ -98,6 +99,7 @@ static void nagScreen() {
 	ourCountLabel.frame = CGRectMake(5,5,bottomCamBar.frame.size.width-10,bottomCamBar.frame.size.height-10);
 	ourCountLabel.opaque = false; 
 	ourCountLabel.backgroundColor = [UIColor clearColor]; 
+	ourCountLabel.textColor = (isOSSix ? [UIColor whiteColor] : [UIColor blackColor]);
 	ourCountLabel.lineBreakMode = UILineBreakModeWordWrap; 
 	ourCountLabel.numberOfLines = 0; 
 	[ourCountBar addSubview:ourCountLabel]; 
@@ -115,13 +117,20 @@ static void nagScreen() {
 	NSString* appID = [[NSBundle mainBundle] bundleIdentifier]; 
 	isSpringBoard=[appID isEqualToString:@"com.apple.springboard"]; 
 		isCamera=[appID isEqualToString:@"com.apple.camera"]; 
+		isOSSix= ([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0);
 	%orig; 
 	camBtn = self; 
 	timeButton = [UIButton buttonWithType:UIButtonTypeCustom]; 
 	[timeButton setFrame:CGRectMake(self.frame.origin.x - self.frame.size.height-5,self.frame.origin.y,self.frame.size.height,self.frame.size.height)];
-	[timeButton setImage:[UIImage imageWithContentsOfFile:@"/Library/Application Support/CamTime/time.png"] forState:UIControlStateNormal];
+	[timeButton setImage:[UIImage imageWithContentsOfFile:@"/Library/Application Support/CamTime/time.png"] forState:UIControlStateNormal]; 
+	if(isOSSix) {
+	  [timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBlack.png"] forState:UIControlStateNormal];	
+	[timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBlackPressed.png"] forState:UIControlStateHighlighted];
+	
+	} else {
      [timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonSilver.png"] forState:UIControlStateNormal];	
 	[timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonSilverPressed.png"] forState:UIControlStateHighlighted];
+	}
 	[self addSubview: timeButton]; 
 	snd = [[SoundCtrl alloc]init]; 
 	areWeOn = false; 
@@ -175,16 +184,26 @@ if (!areWeOn) {
         totalShots = remainingShots; 
         areWeOn = true; 
         
-		[timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonSilverPressed.png"] forState:UIControlStateNormal];	
-    }
+		if(isOSSix) {
+		  [timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBlackPressed.png"] forState:UIControlStateNormal];	
+	
+		} else {
+     		[timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonSilverPressed.png"] forState:UIControlStateNormal];	
+		}   
+	}
     if([alertView.title isEqualToString:@"Cancel the timer?"] && [[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Yes"])
     {  
         areWeOn = false; 
-		[timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonSilver.png"] forState:UIControlStateNormal];	
-    }
+		if(isOSSix) {
+		  [timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonBlack.png"] forState:UIControlStateNormal];	
+	
+		} else {
+     		[timeButton setBackgroundImage:[UIImage imageWithContentsOfFile:@"/System/Library/PrivateFrameworks/PhotoLibrary.framework/PLCameraButtonSilver.png"] forState:UIControlStateNormal];	
+		} 
+	}
 
     if([alertView.title isEqualToString:ABT_TITLE] && [[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Donate"])
-		 [[UIApplication sharedApplication]openURL:[NSURL URLWithString:@"http:
+		 [[UIApplication sharedApplication]openURL:[NSURL URLWithString:@"http://vladkorotnev.github.com/donation"]];
 }
 
 %new

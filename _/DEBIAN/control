@@ -1,7 +1,7 @@
 Package: com.vladkorotnev.camtime
 Name: CamTime
 Depends: mobilesubstrate
-Version: 4.1-2
+Version: 5.0-3
 Architecture: iphoneos-arm
 Description: Set timer and multiple shot in iOS Camera window
 Maintainer: Vladislav Korotnev
